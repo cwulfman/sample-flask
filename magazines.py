@@ -33,5 +33,11 @@ def index():
 @bp.route("<magid>")
 def issues_of(magid):
     uriref = lookup[magid]['id']
-    data = kb.magazine(uriref)
-    return data.to_dict()
+    magazine = kb.magazine(uriref)
+    name = magazine.label
+    issues = [str(i.label) for i in magazine.issues]
+    # return magazine.to_dict()
+    return render_template('magazines/magazine.html',
+                           name=name,
+                           issues=issues)
+
