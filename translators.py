@@ -33,4 +33,7 @@ def translations_by(personid):
     # return hit.to_dict()
     # return hit
     data = kb.translator(uriref)
-    return data.to_dict()
+    return render_template('translators/translator.html',
+                           data=data.to_dict())
+    
+

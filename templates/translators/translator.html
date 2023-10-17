@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}{{ data.label }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <h2>Stats</h2>
+  <dl>
+    <dt>Birth Date</dt>
+    <dd>{{ data.birthDate }}</dd>
+    
+    <dt>Death Date</dt>
+    <dd>{{ data.deathDate }}</dd>
+    
+    <dt>Gender</dt>
+    <dd>{{ data.gender }}</dd>
+    
+    <dt>Nationality</dt>
+    <dd>{{ data.nationality }}</dd>
+  </dl>
+  
+  
+  <h2>Translations</h2>
+  
+  <ul>
+    {% for translation in data.translations %}
+    <li>{{ translation['label'] }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
