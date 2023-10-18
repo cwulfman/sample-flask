@@ -15,8 +15,6 @@
 <script>
  new gridjs.Grid({
      columns: [
-         'id',
-         'key',
          {
              name: 'name',
              formatter: (cell, row) => gridjs.html(`<a href="${row.cells[1].data}">${cell}</a>`),
