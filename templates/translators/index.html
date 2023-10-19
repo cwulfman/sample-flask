@@ -16,6 +16,14 @@
  new gridjs.Grid({
      columns: [
          {
+             name: 'id',
+             hidden: true,
+         },
+         {
+             name: 'key',
+             hidden: true,
+         },
+         {
              name: 'name',
              formatter: (cell, row) => gridjs.html(`<a href="${row.cells[1].data}">${cell}</a>`),
          },
