@@ -1,9 +1,6 @@
-import re
-from rdflib import Graph, URIRef, Namespace, Literal
+from rdflib import Graph, URIRef, Namespace
 from rdflib.namespace._RDFS import RDFS
-from rdflib.namespace._RDF import RDF
 from rdflib.plugins.sparql import prepareQuery
-from pathlib import Path
 
 LRM = Namespace("http://iflastandards.info/ns/lrm/lrmer/")
 CRM = Namespace("http://www.cidoc-crm.org/cidoc-crm/")
@@ -64,9 +61,13 @@ class Magazine():
         issues = self.graph.objects(self.id, LRM.R67_has_part)
         return [Issue(self.graph, issue) for issue in issues]
 
+    @property
+    def key(self) -> str:
+        return str(self.id).split('/')[-1]
+
 
     def to_dict(self) -> dict:
-        return { "key": self.id.split('/')[-1],
+        return { "key": self.key,
                  "id": self.id,
                  "label" : self.label,
                  "issues": [i.to_dict() for i in self.issues] }
@@ -84,6 +85,10 @@ class Issue():
         return next(self.graph.objects(self.id, RDFS.label))
 
     @property
+    def key(self) -> str:
+        return str(self.id).split('/')[-1]
+
+    @property
     def articles(self) -> list:
         articles = self.graph.objects(self.id, LRM.R67_has_part)
         return [Article(self.graph, article) for article in articles]
@@ -94,7 +99,7 @@ class Issue():
         return Magazine(self.graph, next(self.graph.objects(self.id, LRM.R67i_is_part_of)))
 
     def to_dict(self) -> dict:
-        return { "key": self.id.split('/')[-1],
+        return { "key": self.key,
                  "id": self.id,
                  "label": self.label,
                  "articles": [a.to_dict() for a in self.articles] }
@@ -108,12 +113,14 @@ class Article():
     @property
     def label(self) -> str:
         return next(self.graph.objects(self.id, RDFS.label)).toPython()
-        
 
+    @property
+    def key(self) -> str:
+        return str(self.id).split('/')[-1]
 
     def to_dict(self) -> dict:
-        return { "key": self.id.split('/')[-1],
-                 "id": self.id,
+        return { "key": self.key,
+                 "id": str(self.id),
                  "label": self.label, }
                  
 
@@ -121,7 +128,7 @@ class Article():
 
 
 class Translator(Person):
-    def __init__(self, graph, uriref, **kwargs):
+    def __init__(self, graph, uriref):
         super().__init__(graph, uriref)
         self._translations = None
 
@@ -129,6 +136,10 @@ class Translator(Person):
     @property
     def label(self):
         return next(self.graph.objects(self.id, RDFS.label)).toPython()
+
+    @property
+    def key(self) -> str:
+        return str(self.id).split('/')[-1]
 
     @property
     def birthDate(self):
@@ -170,7 +181,6 @@ class Translator(Person):
             ?work rdfs:label ?label .
             }
             """, initNs = {"lrm": LRM, "crm": CRM, "rdfs": RDFS})
-            data = {}
             result = self.graph.query(query, initBindings={'person': self.id})
             if result:
                 self._translations = [{"work": str(row.work), "label": str(row.label)} for row in result]
@@ -179,10 +189,8 @@ class Translator(Person):
 
 
     def to_dict(self)->dict:
-        id = str(self.id)
-        key = id.split('/')[-1]
         return {
-            "key": key,
+            "key": self.key,
             "id": str(self.id),
             "label": self.label,
             "birthDate":  self.birthDate,
@@ -300,122 +308,10 @@ class Translation():
             "author": self.authors[0].names[0],
             "title": self.title,
             "translator": self.translators[0].names[0],
+            "translatorkey": self.translators[0].key,
             "genre": self.genre,
             "sl": s_langs,
             "tl": t_langs,
-        }
-
-
-
-
-class TranslationOld():
-    def __init__(self, graph: Graph, **kwargs):
-        self.graph = graph
-        self.work = kwargs['trans_work']
-        self.expr = kwargs['trans_expr']
-        self.original_expr = kwargs['original_expr']
-        self._sl = kwargs['sl']
-        self._tl = kwargs['tl']
-        self._authors = None
-        self._translators = None
-
-    @property
-    def sl(self):
-        return next(self.graph.objects(self._sl, RDFS.label)).toPython()
-
-    @property
-    def tl(self):
-        return next(self.graph.objects(self._tl, RDFS.label)).toPython()
-
-
-    @property
-    def titles(self):
-        labels = self.graph.objects(self.work, RDFS.label)
-        return [x.toPython() for x in labels]
-
-    @property
-    def languages(self):
-        langs = self.graph.objects(self.expr, CRM.P72_has_language)
-        labels = []
-        for lang in langs:
-            labels.append(next(self.graph.objects(lang, RDFS.label)).toPython())
-        return labels
-
-    @property
-    def authors(self):
-        if self._authors is None:
-            query = prepareQuery("""
-            SELECT ?person
-            WHERE
-            {
-            ?expr lrm:R76i_is_derivative_of ?original .
-            ?original lrm:R17i_was_created_by ?creation .
-            ?person crm:P14i_performed ?creation .
-            }
-            """, initNs = {"lrm": LRM, "crm": CRM})
-            result = self.graph.query(query, initBindings={'expr': self.expr})
-            self._authors = [Person(self.graph, row.person) for row in result]
-        return self._authors
-
-
-    @property
-    def translators(self):
-        if self._translators is None:
-            query = prepareQuery("""
-            SELECT distinct ?person
-            WHERE
-            {
-            ?expr lrm:R17i_was_created_by ?creation .
-            ?person crm:P14i_performed ?creation .
-            }
-            """, initNs = {"lrm": LRM, "crm": CRM})
-            result = self.graph.query(query, initBindings={'expr': self.expr})
-            self._translators = [Person(self.graph, row.person) for row in result]
-        return self._translators
-
-
-    @property
-    def pubDate(self):
-        graph = self.graph
-        issue = next(graph.objects(self.work, LRM.R67i_is_part_of))
-        pub_expr = next(graph.objects(issue, LRM.R3i_is_realised_by))
-        manifestation = next(graph.objects(pub_expr, LRM.R4i_is_embodied_in))
-        manifestation_creation = next(graph.objects(manifestation, LRM.R24i_was_created_by))
-        time_span = next(graph.objects(manifestation_creation, CRM.P4_has_time_span))
-        date_label = next(graph.objects(time_span, RDFS.label))
-        return date_label.toPython()
-
-    @property
-    def magazine(self):
-        graph = self.graph
-        issue = next(graph.objects(self.work, LRM.R67i_is_part_of))
-        magazine = next(graph.objects(issue, LRM.R67i_is_part_of))
-        return next(graph.objects(magazine, RDFS.label)).toPython()
-
-    @property
-    def issue(self):
-        graph = self.graph
-        issue = next(graph.objects(self.work, LRM.R67i_is_part_of))
-        return next(graph.objects(issue, RDFS.label)).toPython()
-
-    @property
-    def genre(self):
-        graph = self.graph
-        genre = next(graph.objects(self.work, LRM.P2_has_type))
-        return genre.toPython()
-
-
-    def to_dict(self):
-        return {
-            "magazine": self.magazine,
-            "issue": self.issue,
-            "pubDate": self.pubDate,
-            "author": self.authors[0].names[0],
-            "title": self.titles[0],
-            "translator": self.translators[0].names[0],
-            "genre": self.genre,
-            "source_language": self.sl,
-            "target_language": self.tl
         }
 
 
@@ -596,186 +492,3 @@ class KnowledgeBase():
 
 
 
-class KnowledgeBaseOld():
-    def __init__(self) -> None:
-        self.graph = Graph()
-        self._translations = None
-        self._translators = None
-        self._translation_query = prepareQuery("""
-        PREFIX lrm: <http://iflastandards.info/ns/lrm/lrmer/>
-        PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        SELECT *
-        WHERE
-        {
-        ?trans_expr lrm:R76i_is_derivative_of ?original_expr.
-        ?original_expr crm:P72_has_language ?sl .
-        ?trans_expr crm:P72_has_language ?tl .
-        FILTER (?sl != ?tl) .
-        ?trans_expr lrm:R3_realises ?trans_work .
-        }""",
-        initNs = {
-            "lrm": "http://iflastandards.info/ns/lrm/lrmer/",
-            "crm": "http://www.cidoc-crm.org/cidoc-crm/",
-            "rdfs": RDFS,
-            })
-
-        self._translator_query = prepareQuery("""
-        PREFIX lrm: <http://iflastandards.info/ns/lrm/lrmer/>
-        PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        select distinct ?person where {
-        ?expr lrm:R76i_is_derivative_of ?original .
-        ?expr lrm:R17i_was_created_by ?creation .
-        ?person crm:P14i_performed ?creation .
-        ?person rdfs:label ?label .
-        }""",
-        initNs = {
-            "lrm": "http://iflastandards.info/ns/lrm/lrmer/",
-            "crm": "http://www.cidoc-crm.org/cidoc-crm/",
-            "rdfs": RDFS,
-            })
-
-
-    def import_data(self, data:str) -> None:
-        try:
-            self.graph.parse(data, format="turtle")
-        except FileNotFoundError:
-            print("couldn't find file")
-
-
-    def facets(self):
-        """Return facets for UI.
-
-        Useful facets include:
-        1. Source & Target Languages
-        2. Magazines
-        3. Date range
-        """
-        pass
-
-    def source_language_facet(self):
-        query = prepareQuery("""
-        SELECT distinct ?sl ?label (count(?sl) as ?n)
-        WHERE
-        {
-        ?translation lrm:R76i_is_derivative_of ?original.
-        ?original crm:P72_has_language ?sl .
-        ?translation crm:P72_has_language ?tl .
-        FILTER (?sl != ?tl) .
-        ?sl rdfs:label ?label .
-        }
-        group by ?label ?sl""",
-        initNs = {"lrm": LRM, "crm": CRM, "rdfs": RDFS})
-
-        result = self.graph.query(query)
-        return [{"lang": row.sl.toPython(),
-                 "label": row.label.toPython(),
-                 "count": row.n.toPython()} for row in result]
-
-    def target_language_facet(self):
-        query = prepareQuery("""
-        SELECT distinct ?tl ?label (count(?tl) as ?n)
-        WHERE
-        {
-        ?translation lrm:R76i_is_derivative_of ?original.
-        ?original crm:P72_has_language ?sl .
-        ?translation crm:P72_has_language ?tl .
-        FILTER (?sl != ?tl) .
-        ?tl rdfs:label ?label .
-        }
-        group by ?label ?tl""",
-        initNs = {"lrm": LRM, "crm": CRM, "rdfs": RDFS})
-
-        result = self.graph.query(query)
-        return [{"lang": row.tl.toPython(),
-                 "label": row.label.toPython(),
-                 "count": row.n.toPython()} for row in result]
-
-
-    def magazine_facet(self):
-        query = prepareQuery("""
-        SELECT distinct ?magazine ?label
-        WHERE
-        {
-        ?magazine a lrm:F18_Serial_Work .
-        ?magazine rdfs:label ?label
-        }
-        """, initNs = {"lrm": LRM, "crm": CRM, "rdfs": RDFS})
-
-        result = self.graph.query(query)
-        return [{"magazine": row.magazine.toPython(),
-                 "label": row.label.toPython()} for row in result]
-
-
-    def genre_facet(self):
-        query = prepareQuery("""
-        SELECT distinct ?genre
-        WHERE
-        {
-        ?work a lrm:F1_Work .
-        ?work lrm:P2_has_type ?genre .
-        }
-        """, initNs = {"lrm": LRM, "crm": CRM, "rdfs": RDFS})
-
-        result = self.graph.query(query)
-        return [{"genre": row.genre.toPython(),
-                 "label": row.genre.toPython()} for row in result]
-
-
-    def pubdate_facet(self):
-        query = prepareQuery("""
-        select distinct ?label
-        where{
-        ?mc crm:P4_has_time_span ?span .
-        ?span lrm:P82_at_some_time_within ?duration .
-	?span rdfs:label ?label} order by ?label""", initNs = {"lrm": LRM, "crm": CRM, "rdfs": RDFS})
-
-        result = self.graph.query(query)
-        return [{"pubDate": row.label.toPython(),
-                 "label": row.label.toPython()} for row in result]
-
-
-    def translations(self) -> list:
-        if self._translations is None:
-            self._translations = []
-            results = self.graph.query(self._translation_query)
-            for row in results:
-                self._translations.append(Translation(self.graph,
-                                                      trans_work=row.trans_work,
-                                                      trans_expr=row.trans_expr,
-                                                      original_expr=row.original_expr,
-                                                      sl=row.sl,
-                                                      tl=row.tl,
-                                                      ))
-        return self._translations
-
-    def translators(self) -> list:
-        if self._translators is None:
-            self._translators = []
-            results = self.graph.query(self._translator_query)
-            for row in results:
-                self._translators.append(Translator(self.graph, row.person))
-        return self._translators
-
-    def translator_old(self, uri: URIRef) -> dict:
-        """Returns data about a translator."""
-        query = prepareQuery("""
-        select ?work ?label
-        where {
-        ?person crm:P14i_performed ?creation .
-        ?creation lrm:R17_created ?expression .
-        ?expression lrm:R3_realises ?work .
-        ?work rdfs:label ?label .
-        }
-        """, initNs = {"lrm": LRM, "crm": CRM, "rdfs": RDFS})
-        data = {}
-        result = self.graph.query(query, initBindings={'person': uri})
-        if result:
-            data = [{"work": str(row.work), "label": str(row.label)} for row in result]
-        return data
-
-    def translator(self, uri: str) -> dict:
-        """Returns data about a translator."""
-        uriref = URIRef(uri)
-        return Translator(self.graph, uriref)

@@ -65,7 +65,16 @@
                  { id: 'pubDate', name: 'Year' },
                  { id: 'author', name: 'Auth' },
                  { id: 'title', name: "Title" },
-                 { id: 'translator', name: "Trans" },
+                 {
+                     id: 'translator',
+                     name: "Trans",
+                     formatter: (cell, row) => gridjs.html(`<a href="/translators/${row.cells[6].data}">${cell}</a>`),
+                 },
+                 {
+                     id: 'translatorkey',
+                     name: "Key",
+                     hidden: true,
+                 },
                  { id: 'genre', name: "Genre" },
                  { id: 'source_language', name: "SL" },
                  { id: 'target_language', name: "TL" },
@@ -73,6 +82,7 @@
              data: [
                  {% for foo in translations %}
                  {
+                     translatorkey: "{{ foo['translatorkey'] }}",
                      magazine: "{{ foo['magazine']}}",
                      pubDate: {{ foo['pubDate']}},
                      issue: "{{foo['issue'] }}",
