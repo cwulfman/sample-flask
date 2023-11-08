@@ -1,1 +1,1 @@
-web: gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py wsgi:app
+web: uvicorn wsgi:app --workers 2 --host 0.0.0.0
