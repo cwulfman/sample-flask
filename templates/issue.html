@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+    <h1 class="title">Translations Published in {{ info.magLabel }} Issue {{ info.number }}, {{ info.pubDate }}</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>title</th>
+          <th>translator</th>
+          <th>author</th>
+          <th>genre</th>
+          <th>from</th>
+          <th>to</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in constituents %}
+        <tr>
+          <td>{{ c.title }}</td>
+          <td><a href="/translators/{{ c.translator.split('/')[-1] }}">{{ c.name }}</a></td>
+          <td>{{ c.authorName }}</td>
+          <td>{{ c.genre }}</td>
+          <td>{{ c.olanguage }}</td>
+          <td>{{ c.language }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="content">
+  <section class="section">
+  <form method="POST" action="">
+    {{ form.csrf_token }}
+
+    <div class="field is-horizontal">
+      <div class="field-label is-normal">
+        <label class="label">{{ form.sl.label }}</label>
+      </div>
+      <div class="field-body">
+        <div class="field is-narrow">
+          <div class="control">
+            <div class="select is-narrow">
+              {{ form.sl }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="field-label is-normal">
+        <label class="label">{{ form.tl.label }}</label>
+      </div>
+      <div class="field-body">
+        <div class="field is-narrow">
+          <div class="control">
+            <div class="select is-narrow">
+              {{ form.tl }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="field-label is-normal">
+        <label class="label">{{ form.after_date.label }}</label>
+      </div>
+      <div class="field-body">
+        <div class="field is-narrow">
+          <div class="control">
+            <div class="select is-narrow">
+              {{ form.after_date }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="field-label is-normal">
+        <label class="label">{{ form.before_date.label }}</label>
+      </div>
+      <div class="field-body">
+        <div class="field is-narrow">
+          <div class="control">
+            <div class="select is-narrow">
+              {{ form.before_date }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-normal">
+        <label class="label">{{ form.magazine.label }}</label>
+      </div>
+      <div class="field-body">
+        <div class="field is-narrow">
+          <div class="control">
+            <div class="select is-narrow">
+              {{ form.magazine }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="field-label is-normal">
+        <label class="label">{{ form.genre.label }}</label>
+      </div>
+      <div class="field-body">
+        <div class="field is-narrow">
+          <div class="control">
+            <div class="select is-narrow">
+              {{ form.genre }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="field-body"></div>
+      <div class="field-body"></div>
+    </div>
+
+    
+    <div class="field is-grouped is-grouped-centered">
+      <div class="control">
+        <button class="button is-primary mb-2">Query</button>
+      </div>
+    </div>
+  </form>
+  </section>
+  <hr />
+  <section class="section">
+
+    <nav class="pagination is-right" role="navigation" aria-label="pagination">
+      {% if prev_page %}
+      <a class="pagination-previous" href="translations?page={{ prev_page }}&amp;page_size={{page_size}}">
+      Previous
+      </a>
+      {% endif %}
+      {% if next_page %}
+      <a class="pagination-next" href="translations?page={{ next_page }}&amp;page_size={{page_size}}">
+            Next
+      </a>
+      {% endif %}
+      <ul class="pagination-list">
+        <a class="pagination-link is-current">{{ current_page }}</a>
+      </ul>
+    </nav>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Magazine</th>
+          <th>Issue</th>
+          <th>Pub Date</th>
+          <th>Title</th>
+          <th>Genre</th>
+          <th>Translator</th>
+          <th>Author</th>
+          <th>SL</th>
+          <th>TL</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for translation in translations %}
+        <tr>
+          <td>{{ translation['magazine_label'] }}</td>
+          <td>{{ translation['issue_label'] }}</td>
+          <td>{{ translation['pubDate'] }}</td>
+          <td>{{ translation['title'] }}</td>
+          <td>{{ translation['genre'] }}</td>
+          <td><a href="/translators/{{translation['translator'].split('/')[-1]}}">{{ translation['translator_name'] }}</a></td>
+          <td>{{ translation['author_name'] }}</td>
+          <td>{{ translation['olangLabel'] }}</td>
+          <td>{{ translation['tlangLabel'] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  </div>
+  {% endblock %}
+

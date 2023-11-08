@@ -1,0 +1,17 @@
+<html>
+  <head>
+<title>Languages</title>
+</head>
+<body>
+<h1>Languages</h1>
+<ul>
+  {% for language in languages %}
+  <li>
+    {{language['label']}}
+  </li>
+
+  {% endfor %}
+</ul>
+
+</body>
+</html>

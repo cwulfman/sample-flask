@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+
+    <h1 class="title">Magazine {{ info.title }}</h1>
+
+  <main>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>issue id</th>
+          <th>issue number</th>
+          <th>year published</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for issue in issues %}
+        <tr>
+          <td><a href="/issues/{{ issue.id }}">{{ issue.id }}</a></td>
+          <td>{{ issue.number }}</td>
+          <td>{{ issue.pubDate }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </main>
+</section>
+{% endblock %}

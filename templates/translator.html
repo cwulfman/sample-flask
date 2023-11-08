@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+<h1 class="title">{{ info.label }}</h1>
+<h1 class="subtitle is-5">{{ info.birthDate }} &ndash; {{ info.deathDate }}</h1>
+
+<p><i>Nationality:</i> {{ info.nationality }}; <i>Gender:</i> {{ info.gender }}; <i>Language Area:</i> {{ info.language_area }}.
+  </section>
+<hr/>
+<section class="section">
+<h1 class="title is-4">Names and Pseudonyms</h1>
+<ul>
+  {% for name in names %}
+  <li>{{ name }}</li>
+  {% endfor %}
+</ul>
+</section>
+<section class="section">
+<h1 class="title is-4">Works</h2>
+<div class="content">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>title</th>
+          <th>language</th>
+          <th>year<br/>published</th>
+          <th>magazine</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for work in works %}
+        <tr>
+          <td>{{ work.title }}</td>
+          
+          <td>{{ work.language }}</td>
+          
+          <td>{{ work.pubDate }}</td>
+          
+          <td><a href="/issues/{{ work.issueId }}">{{ work.issueLabel }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</section>
+{% endblock %}

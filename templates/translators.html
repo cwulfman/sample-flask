@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="content">
+  <h1 class="title">Translators</h1>
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Gender</th>
+        <th>Nationality</th>
+        <th>Language Area</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for translator in translators %}
+      <tr>
+        <td><a href="/translators/{{ translator.translator.split('/')[-1] }}">{{ translator.label }}</a></td>
+        <td>{{ translator.gender }}</td>
+        <td>{{ translator.nationality }}</td>
+        <td>{{ translator.language_area }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

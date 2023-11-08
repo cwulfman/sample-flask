@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section>
+  <header>
+    <h1>Translated Author: {{ data[0].name }}</h1>
+  </header>
+  <main>
+      <table>
+        <caption>Translations Produced from Works by this Author</caption>
+        <thead>
+          <tr>
+            <th>title</th>
+            <th>translator</th>
+            <th>Original<br/>Language</th>
+            <th>Translation<br/> Language</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in data %}
+          <tr>
+            <td>{{ d.title }}</td>
+            <td><a href="/translators/{{d.translator.split('/')[-1]}}">{{ d.tname }}</a></td>
+            <td>{{ d.olanguage }}</td>
+            <td>{{ d.tlanguage }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  </main>
+</section>
+{% endblock %}
