@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ url_for('static', path='/bulmaswatch.min.css') }}" rel="stylesheet">
+    <title>{% block title %}{% endblock %}</title>
+    {% endblock %}
+  </head>
+  <body>
+    <section class="hero is-halfheight is-primary">
+      <div class="hero-body">
+        <p class="title">Spaces of Translation:</p>&nbsp;
+        <p class="subtitle">European Magazine Culture, 1945 – 1965</p>
+      </div>
+
+      <div class="hero-foot">
+        <nav class="tabs is-boxed is-fullwidth">
+          <div class="container">
+            <ul>
+              <li>
+                <a href="/translations">Translations</a>
+              </li>
+              <li>
+                <a href="/translators">Translators</a>
+              </li>
+              <li>
+                <a href="/magazines">Magazines</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </section>
+  </body>
+</html>
