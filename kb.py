@@ -378,12 +378,12 @@ SELECT distinct ?label ?birthDate  ?deathDate ?gender ?nationality ?language_are
 }} ORDER BY ?label"""
 
         infodata = self.query(infoq).data[0]
-        info = { "label" : infodata['label'],
-                 "birthDate" : infodata['birthDate'],
-                 "deathDate" : infodata['deathDate'],
-                 "gender" : infodata['gender'],
-                 "nationality" : infodata['nationality'],
-                 "language_area" : infodata['language_area']
+        info = { "label" : infodata.get('label'),
+                 "birthDate" : infodata.get('birthDate'),
+                 "deathDate" : infodata.get('deathDate'),
+                 "gender" : infodata.get('gender'),
+                 "nationality" : infodata.get('nationality'),
+                 "language_area" : infodata.get('language_area')
         }
 
             
