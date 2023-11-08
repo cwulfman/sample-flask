@@ -17,7 +17,6 @@ project_root_absolute = project_root.resolve()
 static_root_absolute = project_root_absolute / "static"  # or wherever the static folder actually is
 template_root_absolute = project_root_absolute / "templates"  # or wherever the static folder actually is
 
-breakpoint()
 app: FastAPI = FastAPI()
 app.mount("/static",  StaticFiles(directory=str(static_root_absolute)), name="static")
 templates: Jinja2Templates = Jinja2Templates(directory=template_root_absolute)
